@@ -32,21 +32,14 @@ for entry in feed.entries:
     file_name += '.md'
     file_path = os.path.join(posts_dir, file_name)
 
-    # RSS 데이터 디버깅 (필요시 주석 처리 가능)
-    print(entry)
+    # 파일이 이미 존재하지 않으면 생성
+    if not os.path.exists(file_path):
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(entry.description)  # 글 내용을 파일에 작성
 
-    # `description` 필드 확인 및 처리
-    description = getattr(entry, 'description', None)
-    if description:  # description 필드가 존재하면 파일에 저장
-        if not os.path.exists(file_path):
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(description)
-
-            # 깃허브 커밋
-            repo.git.add(file_path)
-            repo.git.commit('-m', f'Add post: {entry.title}')
-    else:
-        print(f"'description' 필드가 없는 글: {entry.title}")
+        # 깃허브 커밋
+        repo.git.add(file_path)
+        repo.git.commit('-m', f'Add post: {entry.title}')
 
 # 변경 사항을 깃허브에 푸시
 repo.git.push()
